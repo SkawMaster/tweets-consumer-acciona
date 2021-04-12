@@ -1,0 +1,160 @@
+swagger: '2.0'
+info:
+  description: Api para administrar Tweets
+  version: 1.0.0
+  title: Administrador de Tweets
+  
+  contact:
+    email: luismirallesalbero@gmail.com
+
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+
+# tags usadas para organizar las operaciones por usuarios
+tags:
+- name: usuarios
+  description: Operaciones de usuario
+
+paths:
+  /tweets:
+    get:
+      tags:
+      - usuarios
+      summary: obtiene los tweets que cumplan en base a los parámetros de búsqueda
+      operationId: obtenerTweets
+      description: |
+        Obtiene todos los tweets sin filtros si no se informan los query param "usuario" y "validado", es necesario informar "usuario" y "validado" para obtener los tweets validados de un determinado usuario
+      produces:
+      - application/json
+      parameters:
+      - in: query
+        name: usuario
+        description: identificador del usuario
+        required: false
+        type: string
+      - in: query
+        name: validado
+        description: estado del tweet
+        required: false
+        type: boolean
+      responses:
+        200:
+          description: obtiene todos los tweets que cumplan el criterio de búsqueda
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/TweetDto'
+        400:
+          description: error en los parámetros de entrada
+  
+  /tweets/{id}:  
+    patch:
+      tags:
+      - usuarios
+      summary: actualiza el campo validación de un tweet
+      operationId: validarTweet
+      description: actualiza el campo validación de un tweet con el valor pasado en el cuerpo de la petición
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: path
+        name: id
+        description: identificador del tweet
+        required: true
+        type: integer
+      - in: body
+        name: validacion
+        description: nuevo estado de validación
+        schema:
+          $ref: '#/definitions/TweetValidado'
+      responses:
+        204:
+          description: tweet validado
+        400:
+          description: error en los parámetros de entrada
+        409:
+          description: ya existe un tweet
+          
+  /hashtags:
+    get:
+      tags:
+      - usuarios
+      summary: obtiene los hashtags más usados
+      operationId: obtenerHashtagsMasUsados
+      description: |
+        Obtiene los hashtags más usados hasta un límite pasado por query param (máximo 50)
+      produces:
+      - application/json
+      parameters:
+      - in: query
+        name: top
+        description: cantidad de hashtags más usados
+        required: true
+        type: integer
+      responses:
+        200:
+          description: Obtiene los hashtags más usados hasta un límite pasado por query param
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Hashtag'
+        400:
+          description: error en los parámetros de entrada
+          
+definitions:
+  TweetDto:
+    type: object
+    required:
+    - id
+    - usuario
+    - texto
+    - localizacion
+    - validacion
+    properties:
+      id:
+        type: integer
+        format: int32
+        example: 1234
+      usuario:
+        type: string
+        example: Usuario
+      texto:
+        type: string
+        example: Saludos a todos desde Twitter!
+      localizacion:
+        type: string
+        example: español
+      validacion:
+        type: boolean
+        example: false
+  
+  TweetValidado:
+    type: object
+    required:
+    - validacion
+    properties:
+      validacion:
+        type: boolean
+        example: true
+        
+  Hashtag:
+    type: object
+    required:
+    - hashtag
+    properties:
+      hashtag:
+        type: string
+        example: '#acciona'
+
+# Added by API Auto Mocking Plugin
+host: virtserver.swaggerhub.com
+basePath: /lmmiralles/twitter-consumer/1.0.0
+# schemes:
+#  - http
+# Added by API Auto Mocking Plugin
+schemes:
+ - https
+ - http
